@@ -1,8 +1,13 @@
 function validateRegister(req, res, next) {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email & password required" });
+  const { name, email, password } = req.body;
+  if (!name || !name.trim()) {
+    return res.status(400).json({ message: "Name is required" });
+  }
+  if (!email || !email.trim()) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+  if (!password || !password.trim()) {
+    return res.status(400).json({ message: "Password is required" });
   }
 
   if (!email.includes("@") || !email.includes(".")) {
