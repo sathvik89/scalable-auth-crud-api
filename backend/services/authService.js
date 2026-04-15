@@ -2,10 +2,16 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+
 async function registerUser({ name, email, password, role }) {
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new Error("User already exists");
+  }
+
+  const resolvedRole = String(role || "").trim().toLowerCase();
+  if (resolvedRole !== "admin" && resolvedRole !== "user") {
+    throw new Error("Invalid role");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -15,7 +21,7 @@ async function registerUser({ name, email, password, role }) {
     name: displayName,
     email,
     password: hashedPassword,
-    role,
+    role: resolvedRole,
   });
 
   return { message: "User registered successfully" };

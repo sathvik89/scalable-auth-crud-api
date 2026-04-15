@@ -1,5 +1,5 @@
 function validateRegister(req, res, next) {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
   if (!name || !name.trim()) {
     return res.status(400).json({ message: "Name is required" });
   }
@@ -16,6 +16,13 @@ function validateRegister(req, res, next) {
 
   if (password.length < 6) {
     return res.status(400).json({ message: "Password must be at least 6 characters long" });
+  }
+
+  if (role != null && String(role).trim() !== "") {
+    const r = String(role).trim().toLowerCase();
+    if (r !== "user" && r !== "admin") {
+      return res.status(400).json({ message: "Role must be user or admin" });
+    }
   }
 
   next();

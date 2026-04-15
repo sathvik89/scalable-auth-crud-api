@@ -1,10 +1,24 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { App, Button, Layout, Table, Space, Popconfirm } from "antd";
+import {
+  CheckSquareOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  LogoutOutlined,
+  PlusOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
+import { App, Button, Layout, Table, Space, Popconfirm, Typography, Spin } from "antd";
 import * as api from "../api/client";
 import TaskModal from "../components/TaskModal";
 
 const { Header, Sider, Content } = Layout;
+
+function taskOwnerEmail(row) {
+  const u = row.user;
+  if (u && typeof u === "object" && u.email) return u.email;
+  return null;
+}
 
 export default function Dashboard() {
   const { message } = App.useApp();
@@ -13,6 +27,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   const loadTasks = useCallback(async () => {
     setLoading(true);
@@ -24,7 +39,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [message]);
 
   useEffect(() => {
     loadTasks();
@@ -36,29 +51,75 @@ export default function Dashboard() {
   };
 
   const removeTask = async (id) => {
+    setDeletingId(id);
     try {
       const data = await api.del(`/tasks/${id}`);
-      message.success(data?.message || "OK");
-      loadTasks();
+      message.success(data?.message || "Deleted");
+      await loadTasks();
     } catch (e) {
       message.error(api.errMsg(e));
+    } finally {
+      setDeletingId(null);
     }
   };
 
+  const showOwnerColumn = tasks.some((t) => taskOwnerEmail(t));
+
   const columns = [
-    { title: "Title", dataIndex: "title", key: "t" },
-    { title: "Description", dataIndex: "description", key: "d", render: (v) => v || "—" },
     {
-      title: "",
+      title: "Title",
+      dataIndex: "title",
+      key: "t",
+      render: (text) => (
+        <Typography.Text strong style={{ color: "#0f172a" }}>
+          {text}
+        </Typography.Text>
+      ),
+    },
+    ...(showOwnerColumn
+      ? [
+          {
+            title: "Owner",
+            key: "owner",
+            width: 200,
+            ellipsis: true,
+            render: (_, row) => (
+              <Typography.Text type="secondary">{taskOwnerEmail(row) || "—"}</Typography.Text>
+            ),
+          },
+        ]
+      : []),
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "d",
+      ellipsis: true,
+      render: (v) => (
+        <Typography.Text type="secondary">{v || "—"}</Typography.Text>
+      ),
+    },
+    {
+      title: "Actions",
       key: "a",
-      width: 140,
+      width: 180,
+      align: "right",
       render: (_, row) => (
-        <Space>
-          <Button type="link" size="small" onClick={() => { setEditing(row); setModalOpen(true); }}>
+        <Space size="small">
+          <Button
+            type="link"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => {
+              setEditing(row);
+              setModalOpen(true);
+            }}
+          >
             Edit
           </Button>
-          <Popconfirm title="Delete?" onConfirm={() => removeTask(row._id)}>
-            <Button type="link" size="small" danger>Delete</Button>
+          <Popconfirm title="Delete this task?" okText="Delete" cancelText="Cancel" onConfirm={() => removeTask(row._id)}>
+            <Button type="link" size="small" danger icon={<DeleteOutlined />} loading={deletingId === row._id}>
+              Delete
+            </Button>
           </Popconfirm>
         </Space>
       ),
@@ -66,30 +127,60 @@ export default function Dashboard() {
   ];
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider theme="light" width={200} style={{ borderRight: "1px solid #eee" }}>
-        <div style={{ padding: 16 }}>
-          <div style={{ marginBottom: 16, fontWeight: 600 }}>Tasks</div>
-          <Button danger block onClick={logout}>Logout</Button>
+    <Layout className="dashboard-layout">
+      <Sider theme="light" width={220} className="dashboard-sider">
+        <div className="dashboard-brand">
+          <span className="dashboard-brand-icon" aria-hidden>
+            <CheckSquareOutlined />
+          </span>
+          <span>Tasks</span>
+        </div>
+        <div className="dashboard-sider-actions">
+          <Button icon={<LogoutOutlined />} danger block onClick={logout}>
+            Log out
+          </Button>
         </div>
       </Sider>
       <Layout>
-        <Header style={{ background: "#fff", lineHeight: "64px", borderBottom: "1px solid #eee", padding: "0 16px" }}>
-          Task manager
+        <Header className="dashboard-header">
+          <UnorderedListOutlined style={{ marginRight: 10, color: "var(--app-primary)", fontSize: 20 }} />
+          <h1 className="dashboard-header-title">Task manager</h1>
         </Header>
-        <Content style={{ padding: 16, background: "#f5f5f5" }}>
-          <div style={{ background: "#fff", padding: 16, border: "1px solid #eee" }}>
-            <Button type="primary" onClick={() => { setEditing(null); setModalOpen(true); }} style={{ marginBottom: 12 }}>
-              Add task
-            </Button>
-            <Table rowKey="_id" size="small" loading={loading} dataSource={tasks} columns={columns} pagination={{ pageSize: 10 }} />
-          </div>
+        <Content className="dashboard-content">
+          <Spin spinning={loading} tip="Loading tasks…" size="large">
+            <div className="dashboard-panel">
+              <div className="dashboard-toolbar">
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  size="large"
+                  onClick={() => {
+                    setEditing(null);
+                    setModalOpen(true);
+                  }}
+                >
+                  Add task
+                </Button>
+              </div>
+              <Table
+                rowKey="_id"
+                size="middle"
+                loading={false}
+                dataSource={tasks}
+                columns={columns}
+                pagination={{ pageSize: 10, showSizeChanger: false }}
+              />
+            </div>
+          </Spin>
         </Content>
       </Layout>
       <TaskModal
         open={modalOpen}
         task={editing}
-        onClose={() => { setModalOpen(false); setEditing(null); }}
+        onClose={() => {
+          setModalOpen(false);
+          setEditing(null);
+        }}
         onSaved={loadTasks}
       />
     </Layout>

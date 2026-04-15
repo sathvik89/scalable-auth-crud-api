@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { App, Form, Input, Modal } from "antd";
+import { FormOutlined } from "@ant-design/icons";
+import { App, Form, Input, Modal, Typography } from "antd";
 import * as api from "../api/client";
 
 export default function TaskModal({ open, onClose, task, onSaved }) {
@@ -35,14 +36,21 @@ export default function TaskModal({ open, onClose, task, onSaved }) {
     }
   };
 
+  const title = (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+      <FormOutlined style={{ color: "var(--app-primary)" }} />
+      <Typography.Text strong>{task ? "Edit task" : "New task"}</Typography.Text>
+    </span>
+  );
+
   return (
-    <Modal title={task ? "Edit" : "New"} open={open} onCancel={onClose} onOk={submit} confirmLoading={busy} destroyOnHidden>
+    <Modal title={title} open={open} onCancel={onClose} onOk={submit} confirmLoading={busy} destroyOnHidden>
       <Form form={form} layout="vertical">
         <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-          <Input />
+          <Input placeholder="What needs to be done?" />
         </Form.Item>
         <Form.Item name="description" label="Description">
-          <Input.TextArea rows={3} />
+          <Input.TextArea rows={4} placeholder="Optional details" />
         </Form.Item>
       </Form>
     </Modal>

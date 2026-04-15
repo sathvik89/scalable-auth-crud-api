@@ -1,4 +1,5 @@
-const base = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+
+const base = String(import.meta.env.VITE_API_BASE_URL || "").trim();
 
 function headers() {
   const h = { "Content-Type": "application/json" };
