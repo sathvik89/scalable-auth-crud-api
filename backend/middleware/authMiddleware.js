@@ -16,11 +16,14 @@ function verifyToken(req, res, next) {
     if (!decoded) {
       return res.status(401).json({ message: "Unauthorized invalid token" });
     }
-    req.userId = decoded.id;
+    req.user = {
+      id: decoded.id,
+      role: decoded.role,
+    };
     next();
   } catch (err) {
     console.error(err);
-    return res.status(401).json({ message: "Unauthorized invalid token" });
+    return res.status(401).json({ message: "Unauthorized invalid/expired token" });
   }
 }
-module.exports = verifyToken;
+module.exports = {verifyToken};

@@ -2,7 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-exports.registerUser = async ({ email, password, role }) => {
+async function registerUser({ email, password, role }) {
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new Error("User already exists");
@@ -17,17 +17,17 @@ exports.registerUser = async ({ email, password, role }) => {
   });
 
   return { message: "User registered successfully" };
-};
+}
 
-exports.loginUser = async ({ email, password }) => {
+async function loginUser({ email, password }) {
   const user = await User.findOne({ email });
   if (!user) {
-    throw new Error("Invalid credentials");
+    throw new Error("Invalid email or password");
   }
 
   const check = await bcrypt.compare(password, user.password);
   if (!check) {
-    throw new Error("Invalid credentials");
+    throw new Error("Invalid password");
   }
 
   const token = jwt.sign(
@@ -36,5 +36,14 @@ exports.loginUser = async ({ email, password }) => {
     { expiresIn: "1h" },
   );
 
-  return { token, user };
-};
+  return {
+    token,
+    user: {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+    },
+  };
+}
+
+module.exports = { registerUser, loginUser };
