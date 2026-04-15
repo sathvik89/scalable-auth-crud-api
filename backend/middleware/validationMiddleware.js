@@ -1,0 +1,29 @@
+function validateRegister(req, res, next) {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email & password required" });
+  }
+
+  if (!email.includes("@") || !email.includes(".")) {
+    return res.status(400).json({ message: "Invalid email" });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ message: "Password must be at least 6 characters long" });
+  }
+
+  next();
+}
+
+function validateLogin(req, res, next) {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email & password required" });
+  }
+
+  next();
+}
+
+module.exports = { validateRegister, validateLogin };
