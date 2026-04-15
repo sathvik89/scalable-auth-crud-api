@@ -4,8 +4,8 @@ Full-stack app with a **Node.js / Express** REST API and a **React (Vite)** clie
 
 | | URL (replace when deployed) |
 |---|----------------|
-| **Frontend (production)** | `[https://scalable-auth-crud-api.vercel.app/]` |
-| **Backend (production)** | `[https://scalable-auth-crud-api.onrender.com]` |
+| **Frontend (production)** | `https://scalable-auth-crud-api.vercel.app/` |
+| **Backend (production)** | `https://scalable-auth-crud-api.onrender.com` |
 | **GitHub repository** | `https://github.com/sathvik89/scalable-auth-crud-api` |
 
 Local defaults: API `http://localhost:5001`, health check `http://localhost:5001/`.
