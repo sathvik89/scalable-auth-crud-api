@@ -2,11 +2,11 @@
 
 Full-stack app with a **Node.js / Express** REST API and a **React (Vite)** client. The backend is suitable to host on **GitHub** with this README as the single entry point for setup, endpoints, and deployment notes.
 
-| | URL (replace when deployed) |
-|---|----------------|
-| **Frontend (production)** | `https://scalable-auth-crud-api.vercel.app/` |
-| **Backend (production)** | `https://scalable-auth-crud-api.onrender.com` |
-| **GitHub repository** | `https://github.com/sathvik89/scalable-auth-crud-api` |
+| Platform | URL |
+|----------|-----|
+| **Frontend (production)** | [Live Frontend](https://scalable-auth-crud-api.vercel.app/) |
+| **Backend (production)** | [Live Backend](https://scalable-auth-crud-api.onrender.com) |
+| **GitHub repository** | [GitHub Repo](https://github.com/sathvik89/scalable-auth-crud-api) |
 
 Local defaults: API `http://localhost:5001`, health check `http://localhost:5001/`.
 
